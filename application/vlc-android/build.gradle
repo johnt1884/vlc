@@ -6,9 +6,18 @@ plugins {
     id 'kotlin-parcelize'
 }
 
-def build_revision = providers.exec {
-    commandLine('git', 'rev-parse', '--short', 'HEAD')
-}.standardOutput.asText.get().trim()
+def build_revision = provider {
+    try {
+        def code = new ByteArrayOutputStream()
+        project.exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = code
+        }
+        return code.toString().trim()
+    } catch (Exception e) {
+        return "HEAD"
+    }
+}.get()
 
 android {
 
